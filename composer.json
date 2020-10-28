@@ -1,0 +1,33 @@
+{
+    "name": "isaeken/password-generator",
+    "description": "Password generation tool",
+    "keywords": ["secure", "password", "generator", "generation", "maker", "tool"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "isaeken",
+            "email": "hello@isaeken.com.tr",
+            "role": "Founder",
+            "homepage": "https://www.isaeken.com.tr"
+        }
+    ],
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "IsaEken\\PasswordGenerator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IsaEken\\PasswordGenerator\\Test\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7.4",
+        "league/climate": "^3.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "symfony/var-dumper": "^5.1"
+    }
+}
