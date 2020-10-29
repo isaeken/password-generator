@@ -15,6 +15,10 @@
 ``php bin/cli.php [arguments]``
 
 ## Using in your code
+### Add to your project using composer
+````shell script
+composer require isaeken/password-generator
+````
 ### Initialize password generator
 ````php
 use IsaEken\PasswordGenerator\PasswordGenerator;
@@ -32,19 +36,20 @@ $password = $passwordGenerator->generate(16);
 ````
 
 ### Generate password with custom options
+using arguments
 ````php
 $password = $passwordGenerator->generate([
 	'length' => 16,
 	'numbers' => false,
 ]);
 ````
-OR
+or variables
 ````php
 $passwordGenerator->length = 16;
 $passwordGenerator->numbers = false;
 $password = $passwordGenerator->generate();
 ````
-OR
+or chain functions
 ````php
 $password = $passwordGenerator->setLength(16)->setNumbers(false)->generate();
 ````
@@ -83,4 +88,21 @@ $passwordGenerator->setAmbiguous(bool $ambiguous = false) : PasswordGenerator;
 $passwordGenerator->character() : string;
 $passwordGenerator->generate(?int $length = null) : string;
 $passwordGenerator->generateBetween(int $min, int $max) : string;
+````
+
+## Converters
+### Password to rememberable string converter
+````php
+use IsaEken\PasswordGenerator\Converters\PasswordToRememberable;
+$passwordToRememberable = new PasswordToRememberable;
+$passwordToRememberable->setLanguage('tr');
+$passwordToRememberable->password = 'pa5swOrd';
+$rememberableString = $passwordToRememberable->convert();
+````
+### Rememberable string to password converter
+````php
+use IsaEken\PasswordGenerator\Converters\RememberableToPassword;
+$rememberableToPassword = new RememberableToPassword;
+$rememberableToPassword->rememberable = ' pano  açıklama  5  selanik  w  OKYANUS  rüzgar  devrim ';
+$password = $rememberableToPassword->convert();
 ````
