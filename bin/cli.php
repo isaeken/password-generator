@@ -9,6 +9,7 @@
 
 if (PHP_SAPI !== 'cli') return;
 
+use IsaEken\PasswordGenerator\Converters\PasswordToRememberable;
 use IsaEken\PasswordGenerator\PasswordGenerator;
 use League\CLImate\CLImate;
 
@@ -29,49 +30,63 @@ $climate->arguments->add([
         'prefix' => 's',
         'longPrefix' => 'symbols',
         'description' => 'Include symbols',
-        'defaultValue' => 'false',
+        'defaultValue' => '0',
         'castTo' => 'bool',
     ],
     'numbers' => [
         'prefix' => 'n',
         'longPrefix' => 'numbers',
         'description' => 'Include numbers',
-        'defaultValue' => 'true',
+        'defaultValue' => '1',
         'castTo' => 'bool',
     ],
     'lowercase' => [
         'prefix' => 'L',
         'longPrefix' => 'lowercase',
         'description' => 'Include lowercase characters',
-        'defaultValue' => 'true',
+        'defaultValue' => '1',
         'castTo' => 'bool',
     ],
     'uppercase' => [
         'prefix' => 'U',
         'longPrefix' => 'uppercase',
         'description' => 'Include uppercase characters',
-        'defaultValue' => 'true',
+        'defaultValue' => '1',
         'castTo' => 'bool',
     ],
     'similar' => [
         'prefix' => 'S',
         'longPrefix' => 'similar',
         'description' => 'Include similar characters',
-        'defaultValue' => 'false',
+        'defaultValue' => '0',
         'castTo' => 'bool',
     ],
     'ambiguous' => [
         'prefix' => 'a',
         'longPrefix' => 'ambiguous',
         'description' => 'Include ambiguous characters',
-        'defaultValue' => 'false',
+        'defaultValue' => '0',
         'castTo' => 'bool',
+    ],
+    'rememberable' => [
+        'prefix' => 'r',
+        'longPrefix' => 'rememberable',
+        'description' => 'Add rememberable string to output',
+        'defaultValue' => '0',
+        'castTo' => 'bool',
+    ],
+    'rememberableLanguage' => [
+        'prefix' => 'rl',
+        'longPrefix' => 'rememberLanguage',
+        'description' => 'Rememberable string convert language',
+        'defaultValue' => 'en',
+        'castTo' => 'string',
     ],
     'interface' => [
         'prefix' => 'i',
         'longPrefix' => 'interface',
         'description' => 'Enable interface',
-        'defaultValue' => 'true',
+        'defaultValue' => '0',
         'castTo' => 'bool',
     ],
     'help' => [
@@ -99,8 +114,22 @@ if (!$climate->arguments->get('interface'))
     $passwordGenerator->similar     = (bool) $climate->arguments->get('similar');
     $passwordGenerator->ambiguous   = (bool) $climate->arguments->get('ambiguous');
     $password = $passwordGenerator->generate();
-    print $password;
-    return $password;
+    $rememberable = null;
+
+    if ((bool) $climate->arguments->get('rememberable'))
+    {
+        $passwordToRememberable = new PasswordToRememberable;
+        $passwordToRememberable->setLanguage($climate->arguments->get('rememberableLanguage'));
+        $passwordToRememberable->password = $password;
+        $rememberable = $passwordToRememberable->convert();
+    }
+
+    $result = (object) [
+        'password' => $password,
+        'rememberable' => $rememberable,
+    ];
+
+    return print_r($result);
 }
 
 $climate->br();
@@ -147,8 +176,21 @@ $input->accept(['y', 'n']);
 $input->defaultTo('n');
 $passwordGenerator->ambiguous = $input->prompt() == 'y';
 
+$input = $climate->input('Remember language ? [en, tr] (en)');
+$input->accept(['en', 'tr']);
+$input->defaultTo('en');
+$rememberLanguage = $input->prompt();
+
 $password = $passwordGenerator->generate();
+
 $climate->br();
 $climate->green()->inline('Generated password: ');
 $climate->backgroundBlack()->white()->out($password);
+
+$passwordToRememberable = new PasswordToRememberable;
+$passwordToRememberable->setLanguage($rememberLanguage);
+$passwordToRememberable->password = $password;
+$climate->green()->inline('Rememberable: ');
+$climate->backgroundBlack()->white()->out($passwordToRememberable->convert());
+
 return $password;
